@@ -11,7 +11,7 @@
 # software to the public domain. We make this dedication for the benefit
 # of the public at large and to the detriment of our heirs and
 # successors. We intend this dedication to be an overt act of
-# relinquishment in perpetuity of all present and future rights to this
+# relinquishment in perpetuity of all phiresent and future rights to this
 # software under copyright law.
 
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
@@ -35,9 +35,9 @@ DEBUG = False
 ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 try:
-    execfile(ROOT_DIR + "/trello-hipchat.cfg")
+    execfile(ROOT_DIR + "/trello-slack.cfg")
 except IOError:
-    print "trello-hipchat.cfg not found"
+    print "trello-slack.cfg not found"
     sys.exit(1)
 
 try:
@@ -99,7 +99,7 @@ def card_name_strip(n):
         return m.group(1)
     return n
 
-def notify(board_id, list_names, room_id):
+def notify(board_id, list_names, channel_id):
     global LAST_ID
 
     actions = trello("/boards/%s/actions" % board_id)
@@ -121,7 +121,7 @@ def notify(board_id, list_names, room_id):
 
             text = A["data"]["text"]
             text = "\n".join("> " + line for line in text.split("\n"))
-            msg(room_id, "%s commented on card <%s|%s>:\n%s" % (author, card_url, card_name, text))
+            msg(channel_id, "%s commented on card <%s|%s>:\n%s" % (author, card_url, card_name, text))
 
         elif A["type"] == "addAttachmentToCard":
             card_id_short = A["data"]["card"]["idShort"]
@@ -143,9 +143,9 @@ def notify(board_id, list_names, room_id):
                 continue
 
             m = "%s added an attachment to card <%s|%s>: <%s|%s>" % (author, card_url, card_name, aurl, aname)
-            msg(room_id, m)
+            msg(channel_id, m)
             if aurl.lower().endswith("png") or aurl.lower().endswith("gif") or aurl.lower().endswith("jpg") or aurl.lower().endswith("jpeg"):
-                msg(room_id, aurl, mtype="text")
+                msg(channel_id, aurl, mtype="text")
 
         elif A["type"] == "updateCard":
             card_id_short = A["data"]["card"]["idShort"]
@@ -168,7 +168,7 @@ def notify(board_id, list_names, room_id):
                 n1 = ESC(n1)
                 n2 = ESC(n2)
 
-                msg(room_id, "%s moved card <%s|%s> from list \"%s\" to list \"%s\"" % (
+                msg(channel_id, "%s moved card <%s|%s> from list \"%s\" to list \"%s\"" % (
                     author, card_url, card_name, n1, n2))
 
         elif A["type"] == "updateCheckItemStateOnCard":
@@ -182,7 +182,7 @@ def notify(board_id, list_names, room_id):
                 continue
 
             if A["data"]["checkItem"]["state"] == "complete":
-                msg(room_id, "%s completed checklist item \"%s\" in card <%s|%s>" %
+                msg(channel_id, "%s completed checklist item \"%s\" in card <%s|%s>" %
                     (author, ESC(A["data"]["checkItem"]["name"]), card_url, card_name))
 
         elif A["type"] == "createCard":
@@ -195,7 +195,7 @@ def notify(board_id, list_names, room_id):
             if not card_in_lists(list_name, list_names):
                 continue
 
-            msg(room_id, "%s created card <%s|%s>" %
+            msg(channel_id, "%s created card <%s|%s>" %
                 (author, card_url, card_name))
 
 

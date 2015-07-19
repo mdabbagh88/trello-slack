@@ -1,9 +1,12 @@
 Integrate Trello and HipChat
 ============================
-Send important Trello activity logs to HipChat rooms.
+
+(Based on <https://github.com/rasky/trello-hipchat>)
+
+Send important Trello activity logs to Slack channels.
 
 This program will monitor multiple Trello boards/lists and send notifications
-to multiple HipChat rooms. You can monitor a whole board, or just a specific
+to multiple Slack channels. You can monitor a whole board, or just a specific
 subset of lists within it.
 
 Currently, the following Trello activities are notified for all the specified
@@ -24,11 +27,11 @@ How to install
 ==============
 
   * Copy the program to some Linux server you have access to.
-  * Copy the sample configuration from `trello-hipchat.cfg.sample` to
-    `trello-hipchat.cfg`.
+  * Copy the sample configuration from `trello-slack.cfg.sample` to
+    `trello-slack.cfg`.
   * Go through the configuration, read the comments and follow all the
     instructions to get all the required API keys, tokens, IDs, etc.
-  * Run trello-hipchat.py within cron. You can use `crontab -e` to edit
+  * Run trello-slack.py within cron. You can use `crontab -e` to edit
     the current user's crontab file, and add a line like this to run
     the program every minute and redirect its logs to syslog:
 
