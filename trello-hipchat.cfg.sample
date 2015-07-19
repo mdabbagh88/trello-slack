@@ -7,32 +7,27 @@
 # (the API secret is not needed).
 TRELLO_API_KEY = "fill-in-as-explained-above"
 
-# If you want trello-hipchat to access private boards,
+# If you want trello-slack to access private boards,
 # you need a OAuth token that authenticates an user that has read access to
 # all the boards you want to monitor.
 #
 # Go here, substituting the trello API key in the URL:
-# https://trello.com/1/authorize?response_type=token&key=[TRELLO_API_KEY]&scope=read&expiration=never&name=Trello-Hipchat
+# https://trello.com/1/authorize?response_type=token&key=[TRELLO_API_KEY]&scope=read&expiration=never&name=Trello-Slack
 #
 # If you don't want to access to private boards, just comment/remove the following line.
 TRELLO_TOKEN = "fill-in-as-explained-above-or-delete-if-not-needed"
 
-# You need a HipChat API token. Go here to generate one:
-# https://[YOUR_GROUP].hipchat.com/admin/api
-#
-# Create a new Notification token, label it "Trello", and paste it here.
-#
-HIPCHAT_API_KEY = "fill-in-as-explained-above"
+# You need a Slack Incoming Webhook URL
+# @@TODO How to get one
+SLACK_WEBHOOK_URL = "fill-in-as-explained-above"
 
 # List here the Trello boards that you want to monitor, giving them a descriptive
 # name like in the example. Just visit the boards and get the board "code" from the URL.
 BOARD_MAIN = "nC8QJJoZ"
 BOARD_BRAINSTORMING = "vBqLThGO"
 
-# List here the HipChat room IDs where you want to send notifications to.
-# https://[YOUR_GROUP].hipchat.com/rooms/ids
-ROOM_STAFF = "44444"
-ROOM_DESIGNERS = "55555"
+# List the Slack channels (include #) you want to send notifications into
+CHANNEL_HEARTBEAT = "#heartbeat"
 
 # This is the main configuration section. For each board, specify which lists
 # you want to monitor, and which HipChat room notifications must be sent to.
@@ -41,13 +36,13 @@ MONITOR = [
 	( BOARD_MAIN,
 		{
 			"list_names": [ "Current", "Done*" ],
-			"room_id": ROOM_STAFF,
+			"room_id": CHANNEL_HEARTBEAT,
 		}
 	),
 	( BOARD_BRAINSTORMING,
 		{
 			"list_names": [ "*" ],
-			"room_id": ROOM_DESIGNERS,
+			"room_id": CHANNEL_HEARTBEAT,
 		}
 	),
 ]

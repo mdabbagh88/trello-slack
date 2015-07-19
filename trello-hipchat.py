@@ -46,6 +46,8 @@ except IOError:
     PREV_ID = 0
 LAST_ID = 0
 
+# print "prev: ", PREV_ID
+
 ESC = cgi.escape
 
 def trello(path, **kwargs):
@@ -60,21 +62,22 @@ def trello(path, **kwargs):
     data = req.read()
     return json.loads(data)
 
-def msg(room_id, m, mtype="html"):
+def msg(channel_id, m, mtype="html"):
     if DEBUG:
         print m.encode("utf-8")
         return
 
-    data = {
-        "from": "Trello",
-        "message": m.encode("utf-8"),
-        "message_format": mtype,
+    payload = {
+        "username": "Trello",
+        "icon_url": "https://slack.global.ssl.fastly.net/9fa2/img/services/trello_128.png",
+        "text": m.encode("utf-8"),
         "color": "purple",
-        "room_id": room_id
+        "channel": channel_id,
     }
 
-    data = urllib.urlencode(data)
-    req = urllib2.urlopen("https://api.hipchat.com/v1/rooms/message?format=json&auth_token=%s" % HIPCHAT_API_KEY, data)
+    url = SLACK_WEBHOOK_URL
+    data = json.dumps(payload)
+    req = urllib2.urlopen(url, data)
     req.read()
 
 def trunc(s, maxlen=200):
@@ -116,8 +119,9 @@ def notify(board_id, list_names, room_id):
             if not card_in_lists(list_name, list_names):
                 continue
 
-            text = trunc(" ".join(A["data"]["text"].split()))
-            msg(room_id, "%s commented on card <a href=\"%s\">%s</a>: %s" % (author, card_url, card_name, text))
+            text = A["data"]["text"]
+            text = "\n".join("> " + line for line in text.split("\n"))
+            msg(room_id, "%s commented on card <%s|%s>:\n%s" % (author, card_url, card_name, text))
 
         elif A["type"] == "addAttachmentToCard":
             card_id_short = A["data"]["card"]["idShort"]
@@ -138,7 +142,7 @@ def notify(board_id, list_names, room_id):
                 # now useless.
                 continue
 
-            m = "%s added an attachment to card <a href=\"%s\">%s</a>: <a href=\"%s\">%s</a>" % (author, card_url, card_name, aurl, aname)
+            m = "%s added an attachment to card <%s|%s>: <%s|%s>" % (author, card_url, card_name, aurl, aname)
             msg(room_id, m)
             if aurl.lower().endswith("png") or aurl.lower().endswith("gif") or aurl.lower().endswith("jpg") or aurl.lower().endswith("jpeg"):
                 msg(room_id, aurl, mtype="text")
@@ -164,7 +168,7 @@ def notify(board_id, list_names, room_id):
                 n1 = ESC(n1)
                 n2 = ESC(n2)
 
-                msg(room_id, "%s moved card <a href=\"%s\">%s</a> from list \"%s\" to list \"%s\"" % (
+                msg(room_id, "%s moved card <%s|%s> from list \"%s\" to list \"%s\"" % (
                     author, card_url, card_name, n1, n2))
 
         elif A["type"] == "updateCheckItemStateOnCard":
@@ -178,7 +182,7 @@ def notify(board_id, list_names, room_id):
                 continue
 
             if A["data"]["checkItem"]["state"] == "complete":
-                msg(room_id, "%s completed checklist item \"%s\" in card <a href=\"%s\">%s</a>" %
+                msg(room_id, "%s completed checklist item \"%s\" in card <%s|%s>" %
                     (author, ESC(A["data"]["checkItem"]["name"]), card_url, card_name))
 
         elif A["type"] == "createCard":
@@ -191,7 +195,7 @@ def notify(board_id, list_names, room_id):
             if not card_in_lists(list_name, list_names):
                 continue
 
-            msg(room_id, "%s created card <a href=\"%s\">%s</a>" %
+            msg(room_id, "%s created card <%s|%s>" %
                 (author, card_url, card_name))
 
 
